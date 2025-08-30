@@ -1,7 +1,7 @@
 import unittest
 
 from leafnode import LeafNode
-from parentnode import ParentNode
+from parentnode import BlockType, ParentNode, block_to_block_type
 
 
 mock_children = [
@@ -83,3 +83,17 @@ class TestParentNode(unittest.TestCase):
             repr(node),
             "ParentNode(p, children: [LeafNode(b, Bold text, None), LeafNode(None, Normal text, None), LeafNode(i, italic text, None), LeafNode(None, Normal text, None)], None)",
         )
+    
+    def test_block_to_block_types(self):
+        block = "# heading"
+        self.assertEqual(block_to_block_type(block), BlockType.HEADING)
+        block = "```\ncode\n```"
+        self.assertEqual(block_to_block_type(block), BlockType.CODE)
+        block = "> quote\n> more quote"
+        self.assertEqual(block_to_block_type(block), BlockType.QUOTE)
+        block = "- list\n- items"
+        self.assertEqual(block_to_block_type(block), BlockType.ULIST)
+        block = "1. list\n2. items"
+        self.assertEqual(block_to_block_type(block), BlockType.OLIST)
+        block = "paragraph"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
