@@ -24,7 +24,7 @@ def copy_contents(source, destination):
             print(f"trying to copy file {item_source_path} to {item_destination_path}")
             shutil.copy(item_source_path, item_destination_path)
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, base_path):
     print(f" * {from_path} {template_path} -> {dest_path}")
     from_file = open(from_path, "r")
     markdown_content = from_file.read()
@@ -40,6 +40,8 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(markdown_content)
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", html)
+    template = template.replace("href=\"/", f"href=\"{base_path}")
+    template = template.replace("src=\"/", f"src=\"{base_path}")
 
     dest_dir_path = os.path.dirname(dest_path)
     if dest_dir_path != "":
@@ -47,10 +49,10 @@ def generate_page(from_path, template_path, dest_path):
     to_file = open(dest_path, "w")
     to_file.write(template)
 
-def generate_page_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_page_recursive(dir_path_content, template_path, dest_dir_path, base_path):
     if os.path.isfile(dir_path_content):
         print(f"Trying to generate FILE for {dir_path_content} to {dest_dir_path}...")
-        generate_page(dir_path_content, template_path, dest_dir_path)
+        generate_page(dir_path_content, template_path, dest_dir_path, base_path)
         return
 
     print("Trying to get all content in directory...")
@@ -60,4 +62,4 @@ def generate_page_recursive(dir_path_content, template_path, dest_dir_path):
         if os.path.isfile(item_dir_path_content) and item_dir_path_content.endswith(".md"):
             item_dest_dir_path = item_dest_dir_path.replace(".md", ".html")
         print(f"Trying to generate content for {item_dir_path_content} to {item_dest_dir_path}")
-        generate_page_recursive(item_dir_path_content, template_path, item_dest_dir_path)
+        generate_page_recursive(item_dir_path_content, template_path, item_dest_dir_path, base_path)
